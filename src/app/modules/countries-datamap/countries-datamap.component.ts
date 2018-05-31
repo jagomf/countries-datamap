@@ -11,11 +11,13 @@ const COUNTRY = { MINE: 'mycountry', SELECTED: 'selected' };
   styleUrls: ['./countries-datamap.component.css']
 })
 export class CountriesDatamapComponent implements OnInit {
-  @Input() mapData: any[] = [];
-  @Input() mapDefaultFill = '#afafaf';
-  @Input() countryColor = '#428bca';
-  @Input() selfCountryColor = '#5cb85c';
+  @Input() srcData: any[] = [];
+  @Input() noDataColor = '#afafaf';
+  @Input() defaultColor = '#428bca';
+  @Input() exceptionColor = '#5cb85c';
+  @Input() valueLabel = 'Times';
   @Input() multiUser = true;
+  @Input() showDataTooltip = true;
 
   processedData: object;
   renderedMap: DataMap;
@@ -25,7 +27,7 @@ export class CountriesDatamapComponent implements OnInit {
   }
 
   generateMap() {
-    this.mapData.forEach(flagoccurrence => {
+    this.srcData.forEach(flagoccurrence => {
       if (!this.multiUser) {
         if (flagoccurrence.users[0].isSelfCountry) {
           this.processedData[flagoccurrence.iso3] = {
@@ -85,9 +87,9 @@ export class CountriesDatamapComponent implements OnInit {
         popupTemplate: this.generateTooltip
       },
       fills: {
-        defaultFill: this.mapDefaultFill,
-        selected: this.countryColor,
-        mycountry: this.selfCountryColor
+        defaultFill: this.noDataColor,
+        selected: this.defaultColor,
+        mycountry: this.exceptionColor
       },
       data: this.processedData
     });
@@ -96,10 +98,10 @@ export class CountriesDatamapComponent implements OnInit {
 
   generateTooltip(geography, data) {
     let content = `<strong>${geography.properties.name}</strong>`;
-    if (data) {
+    if (this.showDataTooltip && data) {
       if (!this.multiUser) {
         if (data.users[0].showTimes) {
-          content = `${content}<br/>Times: ${data.users[0].times}`;
+          content = `${content}<br/>${this.valueLabel}: ${data.users[0].times}`;
         }
       } else {
         data.users.forEach(flagUser => {
